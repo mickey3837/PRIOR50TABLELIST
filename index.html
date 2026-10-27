@@ -54,48 +54,59 @@
 </div>
 
 <script>
-  // 1. 初始化 LIFF（請替換為您的 LIFF ID）
-  liff.init({ liffId: "YOUR_LIFF_ID" })
-    .then(() => {
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      }
-    })
-    .catch((err) => {
-      console.error("LIFF 初始化失敗", err);
-    });
+  // 請替換為您在 LINE Login 控制台取得的 LIFF ID
+const myLiffId = "YOUR_LIFF_ID"; 
 
-  // 2. 動態生成 1~20 桌選單
+document.addEventListener("DOMContentLoaded", function () {
+  // 動態生成 1~20 桌選項
   const selectEl = document.getElementById('tableSelect');
   for (let i = 0; i <= 20; i++) {
     const opt = document.createElement('option');
     opt.value = i;
-    if( i === 0) {
-      opt.textContent = '主桌';
-    } else {
-        opt.textContent = `第 ${i} 桌`;
-    }
+    if(i==0){opt.textContent = '主桌';} else {opt.textContent = `第 ${i} 桌`;}
+    
     selectEl.appendChild(opt);
   }
 
-  // 3. 按下按鈕發送訊息並關閉 LIFF
-  function submitTable() {
-    const selectedTable = selectEl.value;
-    const messageText = `第${selectedTable}桌人員`;
-
-    // 發送訊息回當前聊天室
-    liff.sendMessages([
-      {
-        type: 'text',
-        text: messageText
+  // 初始化 LIFF
+  liff.init({ liffId: myLiffId })
+    .then(() => {
+      // 檢查是否已登入
+      if (!liff.isLoggedIn()) {
+        // 若未登入，引導登入
+        liff.login();
       }
-    ]).then(() => {
-      // 傳送成功後自動關閉 LIFF 視窗
-      liff.closeWindow();
-    }).catch((err) => {
-      alert('發送失敗：' + err.message);
+    })
+    .catch((err) => {
+      console.error("LIFF 初始化失敗：", err);
+      alert("LIFF 初始化失敗：" + err.message);
     });
+});
+
+function submitTable() {
+  // 再次確保已登入
+  if (!liff.isLoggedIn()) {
+    alert("尚未登入，請先登入 LINE 帳號！");
+    liff.login();
+    return;
   }
+
+  const selectedTable = document.getElementById('tableSelect').value;
+  const messageText = `第${selectedTable}桌人員`;
+
+  // 傳送訊息
+  liff.sendMessages([
+    {
+      type: 'text',
+      text: messageText
+    }
+  ]).then(() => {
+    liff.closeWindow(); // 成功後關閉視窗
+  }).catch((err) => {
+    console.error("發送失敗：", err);
+    alert("發送失敗：" + err.message);
+  });
+}
 </script>
 
 </body>
