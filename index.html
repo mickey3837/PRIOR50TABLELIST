@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>選擇桌號</title>
+  <!-- 引入 LINE LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .container {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+    select {
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #06C755; /* LINE 綠 */
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:active {
+      background-color: #05b34c;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h3>請選擇桌號</h3>
+  
+  <select id="tableSelect">
+    <!-- 動態生成 1 桌 ~ 20 桌 -->
+  </select>
+
+  <button onclick="submitTable()">確認送出</button>
+</div>
+
+<script>
+  // 1. 初始化 LIFF（請替換為您的 LIFF ID）
+  liff.init({ liffId: "YOUR_LIFF_ID" })
+    .then(() => {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+    })
+    .catch((err) => {
+      console.error("LIFF 初始化失敗", err);
+    });
+
+  // 2. 動態生成 1~20 桌選單
+  const selectEl = document.getElementById('tableSelect');
+  for (let i = 0; i <= 20; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    if( i === 0) {
+      opt.textContent = '主桌';
+    } else {
+        opt.textContent = `第 ${i} 桌`;
+    }
+    selectEl.appendChild(opt);
+  }
+
+  // 3. 按下按鈕發送訊息並關閉 LIFF
+  function submitTable() {
+    const selectedTable = selectEl.value;
+    const messageText = `第${selectedTable}桌人員`;
+
+    // 發送訊息回當前聊天室
+    liff.sendMessages([
+      {
+        type: 'text',
+        text: messageText
+      }
+    ]).then(() => {
+      // 傳送成功後自動關閉 LIFF 視窗
+      liff.closeWindow();
+    }).catch((err) => {
+      alert('發送失敗：' + err.message);
+    });
+  }
+</script>
+
+</body>
+</html>
